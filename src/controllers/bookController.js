@@ -241,7 +241,7 @@ export const requestBook = async (req, res) => {
     }
 
     if (book.cantidad != 0) {
-      // Actualizar la cantidad de libros prestados
+      // Actualizar la cantidad de libros vendidos
       const updatedBook = await prisma.update({
         where: {
           id_libro: id_libro,
@@ -255,7 +255,7 @@ export const requestBook = async (req, res) => {
       // Obtener la fecha actual
       const hoy = new Date();
 
-      // Sumar 7 días a la fecha actual
+      // Sumar 1 día a la fecha actual
       const futuro = new Date(hoy);
       futuro.setDate(hoy.getDate() + 3);
 
