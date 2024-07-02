@@ -20,6 +20,8 @@ model User {
   nombre          String
   contrasena      String
   esAdministrador Boolean
+
+  request BookRequest[]
 }
 
 model Libro {
@@ -32,11 +34,15 @@ model Libro {
   descripcion      String @db.Text
   cantidad         Int    @default(0)
   cantidadVendidos Int    @default(0)
+
+  request BookRequest[]
 }
 
 model BookRequest {
-  id_request Int @id @default(autoincrement())
-
+  id_request   Int       @id @default(autoincrement())
+  book         Libro     @relation(fields: [bookId], references: [id_libro])
+  bookId       Int
+  user         User      @relation(fields: [userid], references: [id_usuario])
   userid       Int
   fechaRecoger DateTime  @db.Date
   aceptado     Boolean
