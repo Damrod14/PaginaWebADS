@@ -4,14 +4,14 @@ import prismaAdmin from "../models/admin.js";
 export const createUser = async (req, res) => {
   try {
     const {
-      boleta,
+      id_usuario,
       email,
       nombre,
       contrasena,
       esAdministrador
     } = req.body;
 
-    if (!boleta || !email || !nombre || !contrasena || esAdministrador === undefined) {
+    if (!email || !nombre || !contrasena || esAdministrador === undefined) {
       res.status(400).json({
         message: "Todos los campos son obligatorios"
       });
@@ -20,7 +20,7 @@ export const createUser = async (req, res) => {
 
     const user = await prisma.create({
       data: {
-        boleta: boleta,
+        id_usuario: id_usuario,
         email: email,
         nombre: nombre,
         contrasena: contrasena,
@@ -54,15 +54,16 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-export const getUserByBoleta = async (req, res) => {
+export const getUserByid_usuario = async (req, res) => {
   const userId = parseInt(req.params.id);
   try {
     const user = await prisma.findUnique({
       where: {
-        boleta: userId
+        id_usuario: userId
       },
       select: {
-        boleta: true,
+        id_usuario: true,
+        email:true,
         contrasena: true,
       },
     });
@@ -85,19 +86,19 @@ export const getUserByBoleta = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const {
-      boleta,
+      email,
       contrasena
     } = req.body;
 
-    if (!boleta || !contrasena) {
+    if (!email || !contrasena) {
       return res.status(400).json({
-        message: "La boleta y contraseña son obligatorios",
+        message: "El email y contraseña son obligatorios",
       });
     }
 
     const user = await prisma.findUnique({
       where: {
-        boleta: boleta
+        email: email
       },
     });
 
@@ -116,7 +117,7 @@ export const login = async (req, res) => {
     return res.status(200).json({
       message: "Login exitoso",
       user: {
-        boleta: user.boleta,
+        email: user.email,
         nombre: user.nombre,
         esAdministrador: user.esAdministrador,
       },
@@ -143,12 +144,12 @@ export const getAllRequest = async (req, res) => {
   }
 };
 
-export const getRequestByBoleta = async (req, res) => {
+export const getRequestByid_usuario = async (req, res) => {
   const userId = parseInt(req.params.id);
   try {
     const bookRequest = await prismaAdmin.findMany({
       where: {
-        userBoleta: userId
+        userid_usuario: userId
       }
     }, );
 

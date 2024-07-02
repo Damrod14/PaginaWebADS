@@ -241,7 +241,7 @@ export const searchBook = async (req, res) => {
 };
 
 export const requestBook = async (req, res) => {
-  const { id_libro, boleta } = req.body;
+  const { id_libro, id_usuario } = req.body;
 
   try {
     const book = await prisma.findUnique({
@@ -251,7 +251,7 @@ export const requestBook = async (req, res) => {
     });
     const user = await prisma2.findUnique({
       where: {
-        boleta: boleta,
+        id_usuario: id_usuario,
       },
     });
 
@@ -296,7 +296,7 @@ export const requestBook = async (req, res) => {
       const bookRequest = await prismaAdmin.create({
         data: {
           bookId: id_libro,
-          userBoleta: boleta,
+          userid_usuario: id_usuario,
           aceptado: false,
           fechaRecoger: futuro,
         },
@@ -306,7 +306,7 @@ export const requestBook = async (req, res) => {
         message: "Libro solicitado exitosamente",
         solicitud: bookRequest.id_request,
         IdLibro: book.id_libro,
-        usuario: user.boleta,
+        usuario: user.id_usuario,
         fechaRecoger: futuro,
       });
     } else {

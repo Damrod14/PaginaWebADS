@@ -15,12 +15,11 @@ datasource db {
 }
 
 model User {
-  boleta          Int           @id @unique
-  email           String        @unique
+  id_usuario      Int     @id @unique @default(autoincrement())
+  email           String  @unique
   nombre          String
   contrasena      String
   esAdministrador Boolean
-  request         BookRequest[]
 }
 
 model Libro {
@@ -38,8 +37,7 @@ model Libro {
 model BookRequest {
   id_request Int @id @default(autoincrement())
 
-  user         User      @relation(fields: [userBoleta], references: [boleta])
-  userBoleta   Int
+  userid       Int
   fechaRecoger DateTime  @db.Date
   aceptado     Boolean
   fechaEntrega DateTime? @db.Date
