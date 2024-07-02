@@ -6,7 +6,7 @@ import book from "../models/book.js";
 
 export const createBook = async (req, res) => {
   try {
-    const { titulo, autor, descripcion, portada, cantidad, cantidadPrestados } =
+    const { titulo, autor, descripcion, portada, cantidad, cantidadVendidos, id_libro,editorial,edicion } =
       req.body;
 
     if (!titulo) {
@@ -43,15 +43,37 @@ export const createBook = async (req, res) => {
       });
       return;
     }
+    if (!id_libro) {
+      res.status(400).json({
+        message: "El codigo de barras es obligatorio",
+      });
+      return;
+    }
+
+    if (!edicion) {
+      res.status(400).json({
+        message: "La edicion es obligatoria",
+      });
+      return;
+    }
+    if (!editorial) {
+      res.status(400).json({
+        message: "La editorial es obligatoria",
+      });
+      return;
+    }
 
     const book = await prisma.create({
       data: {
         titulo: titulo,
+        id_libro: id_libro,
+        editorial:editorial,
+        edicion:edicion,
         autor: autor,
         descripcion: descripcion,
         portada: portada,
         cantidad: cantidad,
-        cantidadPrestados: cantidadPrestados,
+        cantidadVendidos: cantidadVendidos,
       },
     });
 
@@ -103,7 +125,7 @@ export const getBookById = async (req, res) => {
 
 export const updateBook = async (req, res) => {
   const bookId = parseInt(req.params.id);
-  const { titulo, autor, descripcion, portada, cantidad, cantidadPrestados } =
+  const { titulo, autor, descripcion, portada, cantidad, cantidadVendidos,editorial,edicion } =
     req.body;
 
   try {
@@ -125,8 +147,14 @@ export const updateBook = async (req, res) => {
     if (cantidad) {
       dataToUpdate.cantidad = cantidad;
     }
-    if (cantidadPrestados) {
-      dataToUpdate.cantidadPrestados = cantidadPrestados;
+    if (cantidadVendidos) {
+      dataToUpdate.cantidadVendidos = cantidadVendidos;
+    }
+    if (editorial) {
+      dataToUpdate.editorial = editorial;
+    }
+    if (edicion) {
+      dataToUpdate.edicion = edicion;
     }
 
     const book = await prisma.update({
@@ -186,6 +214,11 @@ export const searchBook = async (req, res) => {
             },
           },
           {
+            editorial: {
+              contains: palabra,
+            },
+          },
+          {
             autor: {
               contains: palabra,
             },
@@ -234,7 +267,7 @@ export const requestBook = async (req, res) => {
       });
     }
 
-    if (book.cantidad <= book.cantidadPrestados) {
+    if (book.cantidad <= book.cantidadVendidos) {
       return res.status(400).json({
         message: "No hay copias disponibles",
       });
@@ -248,7 +281,7 @@ export const requestBook = async (req, res) => {
         },
         data: {
           cantidad: book.cantidad - 1,
-          cantidadPrestados: book.cantidadPrestados + 1,
+          cantidadVendidos: book.cantidadVendidos + 1,
         },
       });
 
@@ -315,7 +348,7 @@ export const declineRequest = async (req, res) => {
       },
       data: {
         cantidad: request.book.cantidad + 1,
-        cantidadPrestados: request.book.cantidadPrestados - 1,
+        cantidadVendidos: request.book.cantidadVendidos - 1,
       },
     });
 

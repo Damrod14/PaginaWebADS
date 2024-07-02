@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["relationJoins"]
 }
 
@@ -15,32 +15,32 @@ datasource db {
 }
 
 model User {
-  boleta Int @id @unique
-  email String @unique
-  nombre String
-  contrasena String
+  boleta          Int           @id @unique
+  email           String        @unique
+  nombre          String
+  contrasena      String
   esAdministrador Boolean
-  request BookRequest[]
+  request         BookRequest[]
 }
 
 model Libro {
-  id_libro Int @id @default(autoincrement())
-  titulo String @db.Text
-  autor String @db.Text
-  portada String @db.LongText
-  descripcion String @db.Text
-  cantidad Int
-  cantidadPrestados Int
-  request BookRequest[]
+  id_libro         Int    @id @unique
+  titulo           String @db.Text
+  autor            String @db.Text
+  editorial        String @db.Text
+  edicion          Int    @default(0)
+  portada          String @db.LongText
+  descripcion      String @db.Text
+  cantidad         Int    @default(0)
+  cantidadVendidos Int    @default(0)
 }
 
 model BookRequest {
   id_request Int @id @default(autoincrement())
-  book Libro @relation(fields: [bookId], references: [id_libro])
-  bookId Int
-  user User @relation(fields: [userBoleta], references: [boleta])
-  userBoleta Int
-  fechaRecoger DateTime @db.Date
-  aceptado Boolean
+
+  user         User      @relation(fields: [userBoleta], references: [boleta])
+  userBoleta   Int
+  fechaRecoger DateTime  @db.Date
+  aceptado     Boolean
   fechaEntrega DateTime? @db.Date
 }
