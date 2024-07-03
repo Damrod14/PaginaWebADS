@@ -338,15 +338,25 @@ export const requestBook = async (req, res) => {
       const mailOptions = {
         from: 'erodriguezm1406@gmail.com', // Cambia esto por el correo electrónico desde el cual enviarás
         to: user.email, // Asegúrate de que el campo `email` exista en tu modelo de usuario
-        subject: 'Ticket Solicitud de libro',
-        text: `Tu solicitud de libro ha sido procesada exitosamente.
-        Detalles de la solicitud:
-        ID de solicitud: ${bookRequest.id_request}
+        subject: 'Ticket Compra de libro',
+        text: 
+        ` Tu compra ha sido procesada exitosamente.
+        !!Favor de presentar este ticket al recibir su compra!!
+        ---------------------------------------------------
+        Detalles de la Compra:
+        ID de Compra: ${bookRequest.id_request}
         ID del libro: ${book.id_libro}
-        Usuario: ${user.id_usuario}
-        Fecha para recoger: ${bookRequest.fechaRecoger}
-        Precio: ${bookRequest.precio}
-        Gracias por su compra :D`,
+        Título: ${book.titulo}
+        Usuario Número: ${user.id_usuario}
+        Nombre: ${user.nombre}
+        Fecha para recoger*: ${bookRequest.fechaRecoger}
+        Costo a pagar: $${bookRequest.precio}(MXN)
+        ---------------------------------------------------
+
+        Gracias por su preferencia :)
+        *Si su pago fue con tarjeta la fecha indica el día en que
+        se realizó la compra`,
+
       };
 
       transporter.sendMail(mailOptions, (error, info) => {
