@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `BookRequest` ADD COLUMN `precio` INTEGER NOT NULL DEFAULT 0;

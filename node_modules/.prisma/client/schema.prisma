@@ -50,4 +50,5 @@ model BookRequest {
   aceptado     Boolean
   fechaEntrega DateTime? @db.Date
   id_paypal    String?
+  precio       Int       @default(0)
 }
