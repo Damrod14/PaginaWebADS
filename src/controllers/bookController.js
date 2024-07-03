@@ -255,60 +255,45 @@ export const requestBook = async (req, res) => {
 
   try {
     const book = await prisma.findUnique({
-      where: {
-        id_libro: id_libro,
-      },
+      where: { id_libro },
     });
     const user = await prisma2.findUnique({
-      where: {
-        id_usuario: id_usuario,
-      },
+      where: { id_usuario },
     });
 
     if (!book) {
-      return res.status(404).json({
-        message: "El libro no fue encontrado",
-      });
+      return res.status(404).json({ message: "El libro no fue encontrado" });
     }
 
     if (!user) {
-      return res.status(404).json({
-        message: "El usuario no fue encontrado",
-      });
+      return res.status(404).json({ message: "El usuario no fue encontrado" });
     }
 
     if (book.cantidad <= book.cantidadVendidos) {
-      return res.status(400).json({
-        message: "No hay copias disponibles",
-      });
+      return res.status(400).json({ message: "No hay copias disponibles" });
     }
 
     if (book.cantidad != 0) {
-      // Actualizar la cantidad de libros vendidos
       const updatedBook = await prisma.update({
-        where: {
-          id_libro: id_libro,
-        },
+        where: { id_libro },
         data: {
           cantidad: book.cantidad - 1,
           cantidadVendidos: book.cantidadVendidos + 1,
         },
       });
-      if (pago === 'efectivo'){
-          // Obtener la fecha actual
-        const hoy = new Date();
 
-        // Sumar 1 día a la fecha actual
+      if (pago === 'efectivo') {
+        const hoy = new Date();
         const futuro = new Date(hoy);
         futuro.setDate(hoy.getDate() + 1);
 
-        // Guardar la solicitud en la tabla BookRequest
         const bookRequest = await prismaAdmin.create({
           data: {
             bookId: id_libro,
             userid: id_usuario,
             aceptado: false,
             fechaRecoger: futuro,
+            precio: book.precio,
           },
         });
 
@@ -318,9 +303,9 @@ export const requestBook = async (req, res) => {
           IdLibro: book.id_libro,
           usuario: user.id_usuario,
           fechaRecoger: futuro,
+          precio: book.precio, 
         });
-      } else if (pago === 'tarjeta'){
-        //usamos paypal
+      } else if (pago === 'tarjeta') {
         const request = new paypal.orders.OrdersCreateRequest();
         request.prefer("return=representation");
         request.requestBody({
@@ -337,14 +322,14 @@ export const requestBook = async (req, res) => {
           const order = await client.execute(request);
           const hoy = new Date();
 
-          // Guardar la solicitud en la tabla BookRequest
           const bookRequest = await prismaAdmin.create({
             data: {
               bookId: id_libro,
               userid: id_usuario,
               aceptado: true,
               fechaRecoger: hoy,
-              id_paypal: order.result.id,
+              id_paypal: order.result.id, 
+              precio: book.precio, 
             },
           });
 
@@ -355,6 +340,7 @@ export const requestBook = async (req, res) => {
             usuario: user.id_usuario,
             fechaRecoger: hoy,
             id_paypal: order.result.id,
+            precio: book.precio, // Incluir el precio en la respuesta
           });
         } catch (err) {
           console.error(err);
@@ -368,9 +354,7 @@ export const requestBook = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      error: "Hubo un error, pruebe más tarde",
-    });
+    res.status(500).json({ error: "Hubo un error, pruebe más tarde" });
   }
 };
 
