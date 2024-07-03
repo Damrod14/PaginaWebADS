@@ -30,6 +30,7 @@ model Libro {
   autor            String @db.Text
   editorial        String @db.Text
   edicion          Int    @default(0)
+  precio           Int    @default(0)
   portada          String @db.LongText
   descripcion      String @db.Text
   cantidad         Int    @default(0)

@@ -6,12 +6,19 @@ import book from "../models/book.js";
 
 export const createBook = async (req, res) => {
   try {
-    const { titulo, autor, descripcion, portada, cantidad, cantidadVendidos, id_libro,editorial,edicion } =
+    const { titulo, autor, descripcion, portada, cantidad, cantidadVendidos, id_libro,editorial,edicion,precio } =
       req.body;
 
     if (!titulo) {
       res.status(400).json({
         message: "El titulo es obligatorio",
+      });
+      return;
+    }
+
+    if (!precio) {
+      res.status(400).json({
+        message: "El precio es obligatorio",
       });
       return;
     }
@@ -69,6 +76,7 @@ export const createBook = async (req, res) => {
         id_libro: id_libro,
         editorial:editorial,
         edicion:edicion,
+        precio: precio,
         autor: autor,
         descripcion: descripcion,
         portada: portada,
