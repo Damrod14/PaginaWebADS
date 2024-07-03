@@ -20,6 +20,7 @@ model User {
   nombre          String
   contrasena      String
   esAdministrador Boolean
+  direccion       String?
 
   request BookRequest[]
 }
@@ -48,4 +49,5 @@ model BookRequest {
   fechaRecoger DateTime  @db.Date
   aceptado     Boolean
   fechaEntrega DateTime? @db.Date
+  id_paypal    String?
 }

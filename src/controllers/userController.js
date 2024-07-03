@@ -9,10 +9,11 @@ export const createUser = async (req, res) => {
       email,
       nombre,
       contrasena,
-      esAdministrador
+      esAdministrador,
+      direccion
     } = req.body;
 
-    if (!email || !nombre || !contrasena || esAdministrador === undefined) {
+    if (!email || !nombre || !contrasena || esAdministrador === undefined || !direccion) {
       res.status(400).json({
         message: "Todos los campos son obligatorios"
       });
@@ -25,7 +26,8 @@ export const createUser = async (req, res) => {
         email: email,
         nombre: nombre,
         contrasena: contrasena,
-        esAdministrador: esAdministrador
+        esAdministrador: esAdministrador,
+        direccion: direccion
       },
     });
 

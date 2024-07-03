@@ -344,6 +344,7 @@ export const requestBook = async (req, res) => {
               userid: id_usuario,
               aceptado: true,
               fechaRecoger: hoy,
+              id_paypal: order.result.id,
             },
           });
 
@@ -353,7 +354,7 @@ export const requestBook = async (req, res) => {
             IdLibro: book.id_libro,
             usuario: user.id_usuario,
             fechaRecoger: hoy,
-            paypalOrderID: order.result.id,
+            id_paypal: order.result.id,
           });
         } catch (err) {
           console.error(err);
