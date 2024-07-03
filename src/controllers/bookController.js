@@ -3,6 +3,8 @@ import prisma from "../models/book.js";
 import prisma2 from "../models/user.js";
 import prismaAdmin from "../models/admin.js";
 import book from "../models/book.js";
+import client from "../paypalConfig.js";
+import paypal from '@paypal/checkout-server-sdk';
 
 export const createBook = async (req, res) => {
   try {
@@ -317,35 +319,49 @@ export const requestBook = async (req, res) => {
           usuario: user.id_usuario,
           fechaRecoger: futuro,
         });
+      } else if (pago === 'tarjeta'){
+        //usamos paypal
+        const request = new paypal.orders.OrdersCreateRequest();
+        request.prefer("return=representation");
+        request.requestBody({
+          intent: 'CAPTURE',
+          purchase_units: [{
+            amount: {
+              currency_code: 'USD',
+              value: book.precio.toString(),
+            },
+          }],
+        });
+
+        try {
+          const order = await client.execute(request);
+          const hoy = new Date();
+
+          // Guardar la solicitud en la tabla BookRequest
+          const bookRequest = await prismaAdmin.create({
+            data: {
+              bookId: id_libro,
+              userid: id_usuario,
+              aceptado: true,
+              fechaRecoger: hoy,
+            },
+          });
+
+          res.status(200).json({
+            message: "Libro solicitado exitosamente",
+            solicitud: bookRequest.id_request,
+            IdLibro: book.id_libro,
+            usuario: user.id_usuario,
+            fechaRecoger: hoy,
+            paypalOrderID: order.result.id,
+          });
+        } catch (err) {
+          console.error(err);
+          res.status(500).json({
+            error: "Hubo un error con el pago de PayPal, pruebe más tarde",
+          });
+        }
       }
-      if (pago === 'tarjeta'){
-        // Obtener la fecha actual
-      const hoy = new Date();
-
-      // Sumar 1 día a la fecha actual
-      const futuro = new Date(hoy);
-      futuro.setDate(hoy.getDate() + 1);
-
-      // Guardar la solicitud en la tabla BookRequest
-      const bookRequest = await prismaAdmin.create({
-        data: {
-          bookId: id_libro,
-          userid: id_usuario,
-          aceptado: true,
-          fechaRecoger: hoy,
-        },
-      });
-    
-      res.status(200).json({
-        message: "Libro solicitado exitosamente",
-        solicitud: bookRequest.id_request,
-        IdLibro: book.id_libro,
-        usuario: user.id_usuario,
-        fechaRecoger: hoy,
-      });
-    }
-
-      
     } else {
       res.status(404).json("Libro sin existencias");
     }
