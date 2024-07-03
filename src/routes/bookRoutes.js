@@ -27,6 +27,7 @@ bookRoutes.post("/requestBook", requestBook);
 //Funciones para compra en efectivo desde WEB
 bookRoutes.put("/acceptRequest/:id", acceptRequest);
 bookRoutes.delete("/declineRequest/:id", declineRequest);
+
 bookRoutes.put("/deleteCopy/:id", deleteBookCopy);
 bookRoutes.put("/addCopy/:id", addBookCopy);
 

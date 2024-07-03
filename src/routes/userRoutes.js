@@ -10,11 +10,11 @@ import {
 
 const userRoutes = express.Router();
 
-userRoutes.get('/request', getAllRequest);
-userRoutes.get('/request/:id', getRequestByid_usuario);
+userRoutes.get('/request', getAllRequest); //consultar pedidos
+userRoutes.get('/request/:id', getRequestByid_usuario);//consultar pedidos por id
 userRoutes.post("/", createUser);
 userRoutes.get("/", getAllUsers);
-userRoutes.get("/:id", getUserByid_usuario);
+userRoutes.get("/:id", getUserByid_usuario); //busqueda de usuario por ID
 userRoutes.post('/login', login);
 
 

@@ -1,6 +1,7 @@
 import express from "express";
 import prisma from "../models/user.js";
 import prismaAdmin from "../models/admin.js";
+
 export const createUser = async (req, res) => {
   try {
     const {
@@ -104,7 +105,7 @@ export const login = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-        message: "Usuario no encontrado"
+        message: "Correo no encontrado"
       });
     }
 
@@ -149,7 +150,7 @@ export const getRequestByid_usuario = async (req, res) => {
   try {
     const bookRequest = await prismaAdmin.findMany({
       where: {
-        userid_usuario: userId
+        userid: userId
       }
     }, );
 

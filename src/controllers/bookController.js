@@ -241,7 +241,7 @@ export const searchBook = async (req, res) => {
 };
 
 export const requestBook = async (req, res) => {
-  const { id_libro, id_usuario } = req.body;
+  const { id_libro, id_usuario, pago } = req.body;
 
   try {
     const book = await prisma.findUnique({
@@ -284,31 +284,60 @@ export const requestBook = async (req, res) => {
           cantidadVendidos: book.cantidadVendidos + 1,
         },
       });
+      if (pago === 'efectivo'){
+          // Obtener la fecha actual
+        const hoy = new Date();
 
-      // Obtener la fecha actual
+        // Sumar 1 día a la fecha actual
+        const futuro = new Date(hoy);
+        futuro.setDate(hoy.getDate() + 1);
+
+        // Guardar la solicitud en la tabla BookRequest
+        const bookRequest = await prismaAdmin.create({
+          data: {
+            bookId: id_libro,
+            userid: id_usuario,
+            aceptado: false,
+            fechaRecoger: futuro,
+          },
+        });
+
+        res.status(200).json({
+          message: "Libro solicitado exitosamente",
+          solicitud: bookRequest.id_request,
+          IdLibro: book.id_libro,
+          usuario: user.id_usuario,
+          fechaRecoger: futuro,
+        });
+      }
+      if (pago === 'tarjeta'){
+        // Obtener la fecha actual
       const hoy = new Date();
 
       // Sumar 1 día a la fecha actual
       const futuro = new Date(hoy);
-      futuro.setDate(hoy.getDate() + 3);
+      futuro.setDate(hoy.getDate() + 1);
 
       // Guardar la solicitud en la tabla BookRequest
       const bookRequest = await prismaAdmin.create({
         data: {
           bookId: id_libro,
-          userid_usuario: id_usuario,
-          aceptado: false,
-          fechaRecoger: futuro,
+          userid: id_usuario,
+          aceptado: true,
+          fechaRecoger: hoy,
         },
       });
-
+    
       res.status(200).json({
         message: "Libro solicitado exitosamente",
         solicitud: bookRequest.id_request,
         IdLibro: book.id_libro,
         usuario: user.id_usuario,
-        fechaRecoger: futuro,
+        fechaRecoger: hoy,
       });
+    }
+
+      
     } else {
       res.status(404).json("Libro sin existencias");
     }
@@ -325,7 +354,7 @@ export const declineRequest = async (req, res) => {
 
   try {
     const request = await prismaAdmin.findUnique({
-      relationLoadStrategy: "join", // or 'query'
+      relationLoadStrategy: "join", 
       include: {
         book: true,
       },
@@ -390,10 +419,6 @@ export const acceptRequest = async (req, res) => {
     // Obtener la fecha actual
     const hoy = new Date();
 
-    // Sumar 7 días a la fecha actual
-    const futuro = new Date(hoy);
-    futuro.setDate(hoy.getDate() + 14);
-
     // Guardar la solicitud en la tabla BookRequest
     const bookRequest = await prismaAdmin.update({
       where: {
@@ -401,14 +426,14 @@ export const acceptRequest = async (req, res) => {
       },
       data: {
         aceptado: true,
-        fechaEntrega: futuro,
+        fechaEntrega: hoy,
       },
     });
 
     res.status(200).json({
-      message: "Reservación aceptada exitosamente",
+      message: "Libro entregado exitosamente",
       solicitud: requestId,
-      fechaEntrega: futuro,
+      fechaEntrega: hoy,
     });
   } catch (error) {
     console.log(error);
