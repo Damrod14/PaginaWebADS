@@ -5,6 +5,7 @@ import prismaAdmin from "../models/admin.js";
 import book from "../models/book.js";
 import client from "../paypalConfig.js";
 import paypal from '@paypal/checkout-server-sdk';
+import transporter from "../emailConfig.js";
 
 export const createBook = async (req, res) => {
   try {
@@ -282,12 +283,13 @@ export const requestBook = async (req, res) => {
         },
       });
 
+      let bookRequest;
       if (pago === 'efectivo') {
         const hoy = new Date();
         const futuro = new Date(hoy);
         futuro.setDate(hoy.getDate() + 1);
 
-        const bookRequest = await prismaAdmin.create({
+        bookRequest = await prismaAdmin.create({
           data: {
             bookId: id_libro,
             userid: id_usuario,
@@ -295,15 +297,6 @@ export const requestBook = async (req, res) => {
             fechaRecoger: futuro,
             precio: book.precio,
           },
-        });
-
-        res.status(200).json({
-          message: "Libro solicitado exitosamente",
-          solicitud: bookRequest.id_request,
-          IdLibro: book.id_libro,
-          usuario: user.id_usuario,
-          fechaRecoger: futuro,
-          precio: book.precio, 
         });
       } else if (pago === 'tarjeta') {
         const request = new paypal.orders.OrdersCreateRequest();
@@ -322,33 +315,57 @@ export const requestBook = async (req, res) => {
           const order = await client.execute(request);
           const hoy = new Date();
 
-          const bookRequest = await prismaAdmin.create({
+          bookRequest = await prismaAdmin.create({
             data: {
               bookId: id_libro,
               userid: id_usuario,
               aceptado: true,
               fechaRecoger: hoy,
-              id_paypal: order.result.id, 
-              precio: book.precio, 
+              id_paypal: order.result.id,
+              precio: book.precio,
             },
-          });
-
-          res.status(200).json({
-            message: "Libro solicitado exitosamente",
-            solicitud: bookRequest.id_request,
-            IdLibro: book.id_libro,
-            usuario: user.id_usuario,
-            fechaRecoger: hoy,
-            id_paypal: order.result.id,
-            precio: book.precio, // Incluir el precio en la respuesta
           });
         } catch (err) {
           console.error(err);
           res.status(500).json({
             error: "Hubo un error con el pago de PayPal, pruebe más tarde",
           });
+          return;
         }
       }
+
+      // Enviar correo electrónico
+      const mailOptions = {
+        from: 'erodriguezm1406@gmail.com', // Cambia esto por el correo electrónico desde el cual enviarás
+        to: user.email, // Asegúrate de que el campo `email` exista en tu modelo de usuario
+        subject: 'Ticket Solicitud de libro',
+        text: `Tu solicitud de libro ha sido procesada exitosamente.
+        Detalles de la solicitud:
+        ID de solicitud: ${bookRequest.id_request}
+        ID del libro: ${book.id_libro}
+        Usuario: ${user.id_usuario}
+        Fecha para recoger: ${bookRequest.fechaRecoger}
+        Precio: ${bookRequest.precio}
+        Gracias por su compra :D`,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error(error);
+        } else {
+          console.log('Correo enviado: ' + info.response);
+        }
+      });
+
+      res.status(200).json({
+        message: "Libro solicitado exitosamente",
+        solicitud: bookRequest.id_request,
+        IdLibro: book.id_libro,
+        usuario: user.id_usuario,
+        fechaRecoger: bookRequest.fechaRecoger,
+        id_paypal: bookRequest.id_paypal,
+        precio: bookRequest.precio,
+      });
     } else {
       res.status(404).json("Libro sin existencias");
     }
