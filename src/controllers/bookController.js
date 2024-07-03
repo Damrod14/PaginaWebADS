@@ -345,7 +345,7 @@ export const requestBook = async (req, res) => {
         ---------------------------------------------------
         Detalles de la Compra:
         ID de Compra: ${bookRequest.id_request}
-        ID del libro: ${book.id_libro}
+        Código del libro: ${book.id_libro}
         Título: ${book.titulo}
         Usuario Número: ${user.id_usuario}
         Nombre: ${user.nombre}
