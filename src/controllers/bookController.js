@@ -270,7 +270,7 @@ export const requestBook = async (req, res) => {
       return res.status(404).json({ message: "El usuario no fue encontrado" });
     }
 
-    if (book.cantidad <= book.cantidadVendidos) {
+    if (book.cantidad == 0) {
       return res.status(400).json({ message: "No hay copias disponibles" });
     }
 
